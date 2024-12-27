@@ -20,7 +20,10 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
-
+          
+      - name: Enter src
+      - run: cd src
+      
       - name: Build with dotnet
         run: dotnet build --configuration Release
 
