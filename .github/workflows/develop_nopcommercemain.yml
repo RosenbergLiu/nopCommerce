@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy ASP.Net Core app to Azure Web App - NopCommerceMain
 
 on:
@@ -16,13 +13,29 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET Core
+      - name: Setup .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
-      
+
+      - name: Cache NuGet packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Restore dependencies
+        run: dotnet restore
+        working-directory: ./src
+
+      - name: Run tests
+        run: dotnet test --no-build --verbosity normal
+        working-directory: ./src
+
       - name: Build with dotnet
-        run: dotnet build --configuration Release
+        run: dotnet build --configuration Release --no-restore
         working-directory: ./src
 
       - name: Publish with dotnet
@@ -42,7 +55,7 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write #This is required for requesting the JWT
+      id-token: write
 
     steps:
       - name: Download artifact from build job
@@ -50,7 +63,7 @@ jobs:
         with:
           name: dotnet-app
           path: ./dotnet-app
-      
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -65,4 +78,3 @@ jobs:
           app-name: 'NopCommerceMain'
           slot-name: 'Production'
           package: ./dotnet-app
-          
