@@ -241,10 +241,7 @@ public partial class SpecificationAttributeService : ISpecificationAttributeServ
         int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
-        var query = _specificationAttributeRepository.Table;
-
-        if (groupId > 0)
-            query = query.Where(sa => sa.SpecificationAttributeGroupId == groupId);
+        var query = _specificationAttributeRepository.Table.Where(sa => sa.SpecificationAttributeGroupId == groupId);
 
         if (!string.IsNullOrEmpty(name))
             query = query.Where(sa => sa.Name.Contains(name));
